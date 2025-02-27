@@ -11,6 +11,7 @@
             margin: auto;
             padding: 20px;
             text-align: center;
+            background-color: #f0f8ff;
         }
         table {
             width: 100%;
@@ -22,7 +23,20 @@
             padding: 8px;
         }
         th {
-            background-color: #f4f4f4;
+            background-color: #4682b4;
+            color: white;
+        }
+        button {
+            background-color: #4682b4;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #5a9bd3;
         }
     </style>
 </head>
@@ -32,6 +46,8 @@
     <input type="number" id="price" placeholder="Price (RM)" step="0.01">
     <input type="number" id="quantity" placeholder="Qty" value="1">
     <button onclick="addItem()">Add</button>
+    <button onclick="clearList()">Clear List</button>
+    <button onclick="saveToNote()">Save to Note</button>
     
     <table>
         <thead>
@@ -67,9 +83,9 @@
             let cell4 = row.insertCell(3);
             let cell5 = row.insertCell(4);
             
-            cell1.innerHTML = item;
-            cell2.innerHTML = price.toFixed(2);
-            cell3.innerHTML = quantity;
+            cell1.innerHTML = `<input type='text' value='${item}' oninput='editItem(this)'>`;
+            cell2.innerHTML = `<input type='number' value='${price.toFixed(2)}' step='0.01' oninput='editItem(this)'>`;
+            cell3.innerHTML = `<input type='number' value='${quantity}' oninput='editItem(this)'>`;
             cell4.innerHTML = (price * quantity).toFixed(2);
             cell5.innerHTML = `<button onclick="removeItem(this, ${price * quantity})">X</button>`;
             
@@ -86,6 +102,40 @@
             let total = parseFloat(document.getElementById("total").innerText);
             total += amount;
             document.getElementById("total").innerText = total.toFixed(2);
+        }
+        
+        function clearList() {
+            document.getElementById("list").innerHTML = "";
+            document.getElementById("total").innerText = "0.00";
+        }
+        
+        function saveToNote() {
+            let items = [];
+            let rows = document.getElementById("list").rows;
+            for (let i = 0; i < rows.length; i++) {
+                let cells = rows[i].cells;
+                let item = cells[0].children[0].value;
+                let price = cells[1].children[0].value;
+                let quantity = cells[2].children[0].value;
+                let total = cells[3].innerText;
+                items.push(`${item} - RM${price} x ${quantity} = RM${total}`);
+            }
+            localStorage.setItem("shoppingList", JSON.stringify(items));
+            alert("List saved!");
+        }
+        
+        function editItem(input) {
+            let row = input.parentElement.parentElement;
+            let price = parseFloat(row.cells[1].children[0].value);
+            let quantity = parseInt(row.cells[2].children[0].value);
+            let totalCell = row.cells[3];
+            let oldTotal = parseFloat(totalCell.innerText);
+            
+            if (!isNaN(price) && !isNaN(quantity) && price > 0 && quantity > 0) {
+                let newTotal = price * quantity;
+                totalCell.innerText = newTotal.toFixed(2);
+                updateTotal(newTotal - oldTotal);
+            }
         }
     </script>
 </body>
