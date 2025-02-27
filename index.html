@@ -47,7 +47,7 @@
     <input type="number" id="quantity" placeholder="Qty" value="1">
     <button onclick="addItem()">Add</button>
     <button onclick="clearList()">Clear List</button>
-    <button onclick="saveToNote()">Save to Note</button>
+    <button onclick="copyList()">Copy All List</button>
     
     <table>
         <thead>
@@ -109,7 +109,7 @@
             document.getElementById("total").innerText = "0.00";
         }
         
-        function saveToNote() {
+        function copyList() {
             let items = [];
             let rows = document.getElementById("list").rows;
             for (let i = 0; i < rows.length; i++) {
@@ -120,8 +120,12 @@
                 let total = cells[3].innerText;
                 items.push(`${item} - RM${price} x ${quantity} = RM${total}`);
             }
-            localStorage.setItem("shoppingList", JSON.stringify(items));
-            alert("List saved!");
+            let textToCopy = items.join("\n");
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                alert("List copied to clipboard!");
+            }).catch(err => {
+                alert("Failed to copy list");
+            });
         }
         
         function editItem(input) {
