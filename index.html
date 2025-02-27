@@ -3,25 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jana Resit (Muat Turun PDF)</title>
+    <title>Jana Resit (Lengkap)</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+            color: #333;
         }
         .container {
-            max-width: 500px;
+            max-width: 600px;
             margin: auto;
+            background: white;
             padding: 20px;
-            border: 1px solid #ccc;
             border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #28a745;
         }
         label {
             display: block;
             margin-bottom: 8px;
             font-weight: bold;
         }
-        input[type="text"], input[type="number"], input[type="date"] {
+        input[type="text"], input[type="number"], input[type="date"], select {
             width: 100%;
             padding: 8px;
             margin-bottom: 15px;
@@ -42,13 +50,14 @@
         }
         .receipt {
             margin-top: 20px;
-            padding: 15px;
+            padding: 20px;
             border: 1px solid #ccc;
             border-radius: 10px;
             background-color: #f9f9f9;
         }
         .receipt h2 {
             margin-top: 0;
+            color: #28a745;
         }
         .item-list {
             margin-bottom: 15px;
@@ -58,6 +67,34 @@
             gap: 10px;
             margin-bottom: 10px;
         }
+        .logo-preview {
+            max-width: 100px;
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #28a745;
+            color: white;
+        }
+        .total {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        .logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
     </style>
     <!-- Sertakan library jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -65,14 +102,39 @@
 <body>
 
 <div class="container">
-    <h1>Jana Resit (Muat Turun PDF)</h1>
+    <h1>Jana Resit (Lengkap)</h1>
     <form id="receiptForm">
+        <!-- Input Maklumat Asas -->
         <label for="nama">Nama Pelanggan:</label>
         <input type="text" id="nama" required>
 
         <label for="tarikh">Tarikh:</label>
         <input type="date" id="tarikh" required>
 
+        <!-- Input Logo Syarikat -->
+        <label for="logo">Logo Syarikat:</label>
+        <input type="file" id="logo" accept="image/*" onchange="tunjukkanLogo()">
+        <div class="logo-container">
+            <img id="logoPreview" class="logo-preview" src="" alt="Logo Syarikat" style="display: none;">
+        </div>
+
+        <!-- Pilihan Mata Wang -->
+        <label for="mataWang">Mata Wang:</label>
+        <select id="mataWang" required>
+            <option value="RM">Ringgit Malaysia (RM)</option>
+            <option value="USD">Dolar Amerika (USD)</option>
+            <option value="SGD">Dolar Singapura (SGD)</option>
+            <option value="EUR">Euro (EUR)</option>
+        </select>
+
+        <!-- Input Cukai dan Diskaun -->
+        <label for="cukai">Cukai (%):</label>
+        <input type="number" id="cukai" min="0" value="6" required>
+
+        <label for="diskaun">Diskaun (RM):</label>
+        <input type="number" id="diskaun" min="0" value="0" required>
+
+        <!-- Senarai Item -->
         <div class="item-list" id="itemList">
             <div>
                 <input type="text" placeholder="Item" class="item" required>
@@ -82,13 +144,19 @@
             </div>
         </div>
 
+        <!-- Butang Tindakan -->
         <button type="button" onclick="janaResit()">Jana Resit</button>
         <button type="button" onclick="cetakResit()">Cetak Resit</button>
         <button type="button" onclick="muatTurunPDF()">Muat Turun PDF</button>
     </form>
 
+    <!-- Paparan Resit -->
     <div id="resitOutput" class="receipt" style="display: none;">
+        <div class="logo-container">
+            <img id="outputLogo" class="logo-preview" src="" alt="Logo Syarikat" style="display: none;">
+        </div>
         <h2>Resit</h2>
+        <p><strong>Nombor Resit:</strong> <span id="outputNoResit"></span></p>
         <p><strong>Nama Pelanggan:</strong> <span id="outputNama"></span></p>
         <p><strong>Tarikh:</strong> <span id="outputTarikh"></span></p>
         <table>
@@ -96,15 +164,27 @@
                 <tr>
                     <th>Item</th>
                     <th>Kuantiti</th>
-                    <th>Harga (RM)</th>
-                    <th>Jumlah (RM)</th>
+                    <th>Harga (<span id="outputMataWang"></span>)</th>
+                    <th>Jumlah (<span id="outputMataWang2"></span>)</th>
                 </tr>
             </thead>
             <tbody id="outputItems"></tbody>
             <tfoot>
                 <tr>
+                    <td colspan="3"><strong>Jumlah:</strong></td>
+                    <td><strong><span id="outputMataWang3"></span> <span id="outputJumlah"></span></strong></td>
+                </tr>
+                <tr>
+                    <td colspan="3"><strong>Cukai (<span id="outputCukaiPeratus"></span>%):</strong></td>
+                    <td><strong><span id="outputMataWang4"></span> <span id="outputCukai"></span></strong></td>
+                </tr>
+                <tr>
+                    <td colspan="3"><strong>Diskaun:</strong></td>
+                    <td><strong><span id="outputMataWang5"></span> <span id="outputDiskaun"></span></strong></td>
+                </tr>
+                <tr>
                     <td colspan="3"><strong>Jumlah Keseluruhan:</strong></td>
-                    <td><strong>RM <span id="outputTotal"></span></strong></td>
+                    <td class="total"><strong><span id="outputMataWang6"></span> <span id="outputTotal"></span></strong></td>
                 </tr>
             </tfoot>
         </table>
@@ -130,36 +210,79 @@
         button.parentElement.remove();
     }
 
+    // Fungsi untuk menunjukkan logo
+    function tunjukkanLogo() {
+        const logoInput = document.getElementById('logo');
+        const logoPreview = document.getElementById('logoPreview');
+        if (logoInput.files && logoInput.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                logoPreview.src = e.target.result;
+                logoPreview.style.display = 'block';
+            };
+            reader.readAsDataURL(logoInput.files[0]);
+        }
+    }
+
     // Fungsi untuk menjana resit
     function janaResit() {
         const nama = document.getElementById('nama').value;
         const tarikh = document.getElementById('tarikh').value;
+        const mataWang = document.getElementById('mataWang').value;
+        const cukai = parseFloat(document.getElementById('cukai').value);
+        const diskaun = parseFloat(document.getElementById('diskaun').value);
         const items = document.querySelectorAll('.item-list div');
 
         let outputItems = '';
-        let total = 0;
+        let jumlah = 0;
 
         items.forEach(item => {
             const itemName = item.querySelector('.item').value;
             const quantity = parseFloat(item.querySelector('.quantity').value);
             const price = parseFloat(item.querySelector('.price').value);
-            const jumlah = quantity * price;
-            total += jumlah;
+            const jumlahItem = quantity * price;
+            jumlah += jumlahItem;
 
             outputItems += `
                 <tr>
                     <td>${itemName}</td>
                     <td>${quantity}</td>
                     <td>${price.toFixed(2)}</td>
-                    <td>${jumlah.toFixed(2)}</td>
+                    <td>${jumlahItem.toFixed(2)}</td>
                 </tr>
             `;
         });
 
+        const jumlahCukai = (jumlah * (cukai / 100)).toFixed(2);
+        const jumlahDiskaun = diskaun.toFixed(2);
+        const jumlahKeseluruhan = (jumlah + parseFloat(jumlahCukai) - diskaun;
+
+        // Paparkan maklumat resit
+        document.getElementById('outputNoResit').textContent = `RESIT-${Date.now()}`;
         document.getElementById('outputNama').textContent = nama;
         document.getElementById('outputTarikh').textContent = tarikh;
         document.getElementById('outputItems').innerHTML = outputItems;
-        document.getElementById('outputTotal').textContent = total.toFixed(2);
+        document.getElementById('outputMataWang').textContent = mataWang;
+        document.getElementById('outputMataWang2').textContent = mataWang;
+        document.getElementById('outputMataWang3').textContent = mataWang;
+        document.getElementById('outputMataWang4').textContent = mataWang;
+        document.getElementById('outputMataWang5').textContent = mataWang;
+        document.getElementById('outputMataWang6').textContent = mataWang;
+        document.getElementById('outputJumlah').textContent = jumlah.toFixed(2);
+        document.getElementById('outputCukaiPeratus').textContent = cukai;
+        document.getElementById('outputCukai').textContent = jumlahCukai;
+        document.getElementById('outputDiskaun').textContent = jumlahDiskaun;
+        document.getElementById('outputTotal').textContent = jumlahKeseluruhan.toFixed(2);
+
+        // Paparkan logo jika ada
+        const logoPreview = document.getElementById('logoPreview');
+        const outputLogo = document.getElementById('outputLogo');
+        if (logoPreview.src) {
+            outputLogo.src = logoPreview.src;
+            outputLogo.style.display = 'block';
+        }
+
+        // Tunjukkan resit
         document.getElementById('resitOutput').style.display = 'block';
     }
 
@@ -176,7 +299,11 @@
         // Maklumat resit
         const nama = document.getElementById('outputNama').textContent;
         const tarikh = document.getElementById('outputTarikh').textContent;
+        const mataWang = document.getElementById('outputMataWang').textContent;
         const items = document.querySelectorAll('#outputItems tr');
+        const jumlah = document.getElementById('outputJumlah').textContent;
+        const cukai = document.getElementById('outputCukai').textContent;
+        const diskaun = document.getElementById('outputDiskaun').textContent;
         const total = document.getElementById('outputTotal').textContent;
 
         // Tambahkan tajuk
@@ -192,8 +319,8 @@
         let yPos = 40;
         doc.text("Item", 10, yPos);
         doc.text("Kuantiti", 60, yPos);
-        doc.text("Harga (RM)", 100, yPos);
-        doc.text("Jumlah (RM)", 140, yPos);
+        doc.text(`Harga (${mataWang})`, 100, yPos);
+        doc.text(`Jumlah (${mataWang})`, 140, yPos);
         yPos += 10;
 
         items.forEach(item => {
@@ -205,8 +332,11 @@
             yPos += 10;
         });
 
-        // Tambahkan jumlah keseluruhan
-        doc.text(`Jumlah Keseluruhan: RM ${total}`, 10, yPos + 10);
+        // Tambahkan jumlah, cukai, diskaun, dan jumlah keseluruhan
+        doc.text(`Jumlah: ${mataWang} ${jumlah}`, 10, yPos + 10);
+        doc.text(`Cukai: ${mataWang} ${cukai}`, 10, yPos + 20);
+        doc.text(`Diskaun: ${mataWang} ${diskaun}`, 10, yPos + 30);
+        doc.text(`Jumlah Keseluruhan: ${mataWang} ${total}`, 10, yPos + 40);
 
         // Simpan PDF
         doc.save('resit.pdf');
