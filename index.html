@@ -120,7 +120,8 @@
                 let total = cells[3].innerText;
                 items.push(`${item} - RM${price} x ${quantity} = RM${total}`);
             }
-            let textToCopy = items.join("\n");
+            let totalAmount = document.getElementById("total").innerText;
+            let textToCopy = items.join("\n") + `\nTotal: RM${totalAmount}`;
             navigator.clipboard.writeText(textToCopy).then(() => {
                 alert("List copied to clipboard!");
             }).catch(err => {
