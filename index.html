@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jana Resit (Lengkap)</title>
+    <title>Jana Resit (Muat Turun PDF)</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -59,11 +59,13 @@
             margin-bottom: 10px;
         }
     </style>
+    <!-- Sertakan library jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
 <div class="container">
-    <h1>Jana Resit (Lengkap)</h1>
+    <h1>Jana Resit (Muat Turun PDF)</h1>
     <form id="receiptForm">
         <label for="nama">Nama Pelanggan:</label>
         <input type="text" id="nama" required>
@@ -82,6 +84,7 @@
 
         <button type="button" onclick="janaResit()">Jana Resit</button>
         <button type="button" onclick="cetakResit()">Cetak Resit</button>
+        <button type="button" onclick="muatTurunPDF()">Muat Turun PDF</button>
     </form>
 
     <div id="resitOutput" class="receipt" style="display: none;">
@@ -109,6 +112,7 @@
 </div>
 
 <script>
+    // Fungsi untuk menambah item
     function tambahItem() {
         const itemList = document.getElementById('itemList');
         const newItem = document.createElement('div');
@@ -121,10 +125,12 @@
         itemList.appendChild(newItem);
     }
 
+    // Fungsi untuk memadam item
     function padamItem(button) {
         button.parentElement.remove();
     }
 
+    // Fungsi untuk menjana resit
     function janaResit() {
         const nama = document.getElementById('nama').value;
         const tarikh = document.getElementById('tarikh').value;
@@ -157,8 +163,53 @@
         document.getElementById('resitOutput').style.display = 'block';
     }
 
+    // Fungsi untuk mencetak resit
     function cetakResit() {
         window.print();
+    }
+
+    // Fungsi untuk muat turun resit sebagai PDF
+    function muatTurunPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Maklumat resit
+        const nama = document.getElementById('outputNama').textContent;
+        const tarikh = document.getElementById('outputTarikh').textContent;
+        const items = document.querySelectorAll('#outputItems tr');
+        const total = document.getElementById('outputTotal').textContent;
+
+        // Tambahkan tajuk
+        doc.setFontSize(18);
+        doc.text("Resit Pembayaran", 10, 10);
+
+        // Tambahkan maklumat pelanggan
+        doc.setFontSize(12);
+        doc.text(`Nama Pelanggan: ${nama}`, 10, 20);
+        doc.text(`Tarikh: ${tarikh}`, 10, 30);
+
+        // Tambahkan jadual item
+        let yPos = 40;
+        doc.text("Item", 10, yPos);
+        doc.text("Kuantiti", 60, yPos);
+        doc.text("Harga (RM)", 100, yPos);
+        doc.text("Jumlah (RM)", 140, yPos);
+        yPos += 10;
+
+        items.forEach(item => {
+            const columns = item.querySelectorAll('td');
+            doc.text(columns[0].textContent, 10, yPos);
+            doc.text(columns[1].textContent, 60, yPos);
+            doc.text(columns[2].textContent, 100, yPos);
+            doc.text(columns[3].textContent, 140, yPos);
+            yPos += 10;
+        });
+
+        // Tambahkan jumlah keseluruhan
+        doc.text(`Jumlah Keseluruhan: RM ${total}`, 10, yPos + 10);
+
+        // Simpan PDF
+        doc.save('resit.pdf');
     }
 </script>
 
