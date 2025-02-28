@@ -1,77 +1,130 @@
 <!DOCTYPE html>
-<html lang="ms">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kira Harga Barang</title>
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <title>Game Dam</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
         }
-        #total {
-            font-size: 24px;
-            font-weight: bold;
-            margin-top: 20px;
+
+        .game-board {
+            display: flex;
+            flex-direction: column;
         }
-        #reader {
-            width: 300px;
-            margin: auto;
+
+        .row {
+            display: flex;
+        }
+
+        .square {
+            width: 60px;
+            height: 60px;
+            border: 1px solid #000;
+        }
+
+        .black {
+            background-color: #000;
+        }
+
+        .square:nth-child(even) {
+            background-color: #fff;
         }
     </style>
 </head>
 <body>
-    <h1>Imbas QR / Barcode Barang</h1>
-    <div id="reader"></div>
-    <ul id="list"></ul>
-    <p id="total">Jumlah: RM 0.00</p>
-    <p id="error-message" style="color: red;"></p>
-
-    <script>
-        let hargaBarang = {
-            "123456": 10.50,
-            "654321": 15.00,
-            "789123": 7.20,
-            "111222": 5.50,  // Contoh barcode tambahan
-            "333444": 8.90
-        };
-        let totalHarga = 0;
-
-        function onScanSuccess(decodedText) {
-            if (hargaBarang[decodedText]) {
-                totalHarga += hargaBarang[decodedText];
-                let listItem = document.createElement("li");
-                listItem.innerText = `Kod: ${decodedText} - RM ${hargaBarang[decodedText].toFixed(2)}`;
-                document.getElementById("list").appendChild(listItem);
-                document.getElementById("total").innerText = `Jumlah: RM ${totalHarga.toFixed(2)}`;
-            } else {
-                alert("Kod tidak dikenali!");
-            }
-        }
-
-        function onScanFailure(error) {
-            document.getElementById("error-message").innerText = "Ralat: " + error;
-        }
-
-        function startScanner() {
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                let html5QrCode = new Html5Qrcode("reader");
-                html5QrCode.start(
-                    { facingMode: "environment" },
-                    { fps: 10, qrbox: 250 },
-                    onScanSuccess,
-                    onScanFailure
-                ).catch(err => {
-                    document.getElementById("error-message").innerText = "Tidak dapat mengakses kamera. Pastikan kamera tersedia dan beri kebenaran kepada pelayar.";
-                });
-            } else {
-                document.getElementById("error-message").innerText = "Peranti ini tidak menyokong akses kamera.";
-            }
-        }
-        
-        startScanner();
-    </script>
+    <div class="game-board">
+        <div class="row">
+            <div class="square black"></div>
+            <div class="square"></div>
+            <div class="square black"></div>
+            <div class="square"></div>
+            <div class="square black"></div>
+            <div class="square"></div>
+            <div class="square black"></div>
+            <div class="square"></div>
+        </div>
+        <div class="row">
+            <div class="square"></div>
+            <div class="square black"></div>
+            <div class="square"></div>
+            <div class="square black"></div>
+            <div class="square"></div>
+            <div class="square black"></div>
+            <div class="square"></div>
+            <div class="square black"></div>
+        </div>
+        <div class="row">
+            <div class="square black"></div>
+            <div class="square"></div>
+            <div class="square black"></div>
+            <div class="square"></div>
+            <div class="square black"></div>
+            <div class="square"></div>
+            <div class="square black"></div>
+            <div class="square"></div>
+        </div>
+        <div class="row">
+            <div class="square"></div>
+            <div class="square black"></div>
+            <div class="square"></div>
+            <div class="square black"></div>
+            <div class="square"></div>
+            <div class="square black"></div>
+            <div class="square"></div>
+            <div class="square black"></div>
+        </div>
+        <div class="row">
+            <div class="square black"></div>
+            <div class="square"></div>
+            <div class="square black"></div>
+            <div class="square"></div>
+            <div class="square black"></div>
+            <div class="square"></div>
+            <div class="square black"></div>
+            <div class="square"></div>
+        </div>
+        <div class="row">
+            <div class="square"></div>
+            <div class="square black"></div>
+            <div class="square"></div>
+            <div class="square black"></div>
+            <div class="square"></div>
+            <div class="square black"></div>
+            <div class="square"></div>
+            <div class="square black"></div>
+        </div>
+        <div class="row">
+            <div class="square black"></div>
+            <div class="square"></div>
+            <div class="square black"></div>
+            <div class="square"></div>
+            <div class="square black"></div>
+            <div class="square"></div>
+            <div class="square black"></div>
+            <div class="square"></div>
+        </div>
+        <div class="row">
+            <div class="square"></div>
+            <div class="square black"></div>
+            <div class="square"></div>
+            <div class="square black"></div>
+            <div class="square"></div>
+            <div class="square black"></div>
+            <div class="square"></div>
+            <div class="square black"></div>
+        </div>
+    </div>
 </body>
 </html>
