@@ -23,7 +23,7 @@
     </style>
 </head>
 <body>
-    <h1>Imbas QR Barang</h1>
+    <h1>Imbas QR / Barcode Barang</h1>
     <div id="reader"></div>
     <ul id="list"></ul>
     <p id="total">Jumlah: RM 0.00</p>
@@ -33,7 +33,9 @@
         let hargaBarang = {
             "123456": 10.50,
             "654321": 15.00,
-            "789123": 7.20
+            "789123": 7.20,
+            "111222": 5.50,  // Contoh barcode tambahan
+            "333444": 8.90
         };
         let totalHarga = 0;
 
@@ -41,11 +43,11 @@
             if (hargaBarang[decodedText]) {
                 totalHarga += hargaBarang[decodedText];
                 let listItem = document.createElement("li");
-                listItem.innerText = `Kod QR: ${decodedText} - RM ${hargaBarang[decodedText].toFixed(2)}`;
+                listItem.innerText = `Kod: ${decodedText} - RM ${hargaBarang[decodedText].toFixed(2)}`;
                 document.getElementById("list").appendChild(listItem);
                 document.getElementById("total").innerText = `Jumlah: RM ${totalHarga.toFixed(2)}`;
             } else {
-                alert("Kod QR tidak dikenali!");
+                alert("Kod tidak dikenali!");
             }
         }
 
